@@ -2,16 +2,21 @@ package me.florianschmidt.replication.baseline.model;
 
 public class Transaction {
 
-	public final int customerId;
-	public final int cardId;
-	public final Location location;
-	public final long utcTimestamp;
-	public final double amount;
+	public int customerId;
+	public int cardId;
+	public Location location;
+	public long utcTimestamp;
+	public double amount;
 	public long created;
+
+	public String uuid;
 
 	// public final byte[] payload = new byte[100];
 
-	// Make pojo or add serializer
+
+	public Transaction() {
+	}
+
 	public Transaction(
 			int customerId,
 			int cardId,

@@ -21,7 +21,7 @@ public class TransactionSource extends RichParallelSourceFunction<Transaction> {
 			synchronized (sourceContext.getCheckpointLock()) {
 				sourceContext.collect(generateNewTransaction());
 			}
-			Thread.sleep(1);
+			Thread.sleep(5);
 		}
 	}
 

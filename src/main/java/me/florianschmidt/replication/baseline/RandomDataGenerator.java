@@ -5,6 +5,7 @@ import me.florianschmidt.replication.baseline.model.Location;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.SplittableRandom;
 
 public class RandomDataGenerator {
 

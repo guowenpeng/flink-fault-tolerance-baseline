@@ -1,9 +1,11 @@
 package me.florianschmidt.replication.baseline.model;
 
-// TODO: Add empty constructor
 public class Location {
-	public final double latitude;
-	public final double longitude;
+	public double latitude;
+	public double longitude;
+
+	public Location() {
+	}
 
 	public Location(double latitude, double longitude) {
 		this.latitude = latitude;
