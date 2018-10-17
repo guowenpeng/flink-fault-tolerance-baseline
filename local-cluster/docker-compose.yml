@@ -16,8 +16,8 @@ services:
 
   taskmanager:
     build: ./flink
-    ports:
-      - "5005:5005"
+    # ports:
+      # - "5005:5005"
     expose:
       - "6121"
       - "6122"
@@ -26,6 +26,7 @@ services:
     command: taskmanager
     links:
       - "jobmanager:cluster"
+      - "generator"
     environment:
       - JOB_MANAGER_RPC_ADDRESS=cluster
     volumes:
@@ -50,7 +51,17 @@ services:
     links:
       - jobmanager
       - taskmanager
+      - generator
     command: "--log.level=debug --config.file=/etc/prometheus/prometheus.yml"
+
+  generator:
+    build: ../../../go/src/github.com/florianschmidt1994/transaction-generator
+    expose:
+      - "9999"
+      - "9998"
+    ports:
+      - "9999:9999"
+      - "9998:9998"
 
 
   

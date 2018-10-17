@@ -1,14 +1,24 @@
 package me.florianschmidt.replication.baseline.model;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Transaction {
 
+	@JsonProperty("CustomerID")
 	public int customerId;
+
+	@JsonProperty("CardID")
 	public int cardId;
+
+	@JsonProperty("Location")
 	public Location location;
-	public long utcTimestamp;
+
 	public double amount;
+
+	@JsonProperty("CreatedAt")
 	public long created;
 
+	@JsonProperty("ID")
 	public String uuid;
 
 	// public final byte[] payload = new byte[100];
@@ -27,7 +37,6 @@ public class Transaction {
 		this.customerId = customerId;
 		this.cardId = cardId;
 		this.location = location;
-		this.utcTimestamp = utcTimestamp;
 		this.amount = amount;
 		this.created = System.currentTimeMillis();
 	}
@@ -38,7 +47,6 @@ public class Transaction {
 				"customerId=" + customerId +
 				", cardId=" + cardId +
 				", location=" + location +
-				", utcTimestamp=" + utcTimestamp +
 				", amount=" + amount +
 				'}';
 	}

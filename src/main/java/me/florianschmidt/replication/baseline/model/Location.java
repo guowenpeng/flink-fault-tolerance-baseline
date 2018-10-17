@@ -1,7 +1,13 @@
 package me.florianschmidt.replication.baseline.model;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Location {
+
+	@JsonProperty("Latitude")
 	public double latitude;
+
+	@JsonProperty("Longitude")
 	public double longitude;
 
 	public Location() {

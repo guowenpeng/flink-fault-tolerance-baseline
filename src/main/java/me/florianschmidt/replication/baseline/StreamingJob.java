@@ -39,6 +39,7 @@ import org.apache.flink.runtime.state.heap.HeapKeyedStateBackend;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.RichCoFlatMapFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SocketTextStreamFunction;
@@ -66,12 +67,22 @@ public class StreamingJob {
 
 		env.setStateBackend(backend);
 
-		DataStream<Transaction> transactions = env
+		env
 				.addSource(new TransactionSource())
 				.name("Transaction Generator")
 				.uid("TransactionGenerator")
+				.process(new ProcessFunction<Transaction, Transaction>() {
+					@Override
+					public void processElement(
+							Transaction value, Context ctx, Collector<Transaction> out
+					) {
+						out.collect(value);
+					}
+				})
+				// .disableChaining()
+				.addSink(new TimeMeasureSink());
 
-				.map(new AddUuid())
+		/*		.map(new AddUuid())
 				.name("Add UUID")
 				.uid("AddUUID");
 
@@ -100,7 +111,8 @@ public class StreamingJob {
 
 				.addSink(new TimeMeasureSink())
 				.uid("MeasuringLatencySink")
-				.name("Measuring Latency Sink");
+				.name("Measuring Latency Sink");*/
+
 
 		env.execute("Fraud detection example");
 	}
@@ -170,7 +182,7 @@ public class StreamingJob {
 			}
 
 			double distance = GeoUtils.distance(lastTransaction.location, transaction.location);
-			double time = GeoUtils.time(lastTransaction.utcTimestamp, transaction.utcTimestamp);
+			double time = GeoUtils.time(lastTransaction.created, transaction.created);
 			double speed = distance / time;
 
 			this.lastTransactionState.update(transaction);

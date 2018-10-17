@@ -1,35 +1,48 @@
 package me.florianschmidt.replication.baseline;
 
-import com.codahale.metrics.SlidingWindowReservoir;
-import me.florianschmidt.replication.baseline.model.FraudDetectionResult;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
-import org.apache.flink.metrics.Histogram;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 
-class TimeMeasureSink extends RichSinkFunction<FraudDetectionResult> {
+import me.florianschmidt.replication.baseline.model.Transaction;
 
-	private Histogram histogram;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.util.Map;
+
+class TimeMeasureSink extends RichSinkFunction<Transaction> {
+
+	private transient BufferedWriter writer;
+	private transient BufferedReader reader;
+	private int lastAcknowledged;
 
 	@Override
 	public void open(Configuration parameters) throws Exception {
-		com.codahale.metrics.Histogram dropwizardHistogram =
-				new com.codahale.metrics.Histogram(new SlidingWindowReservoir(500));
+		Socket socket = new Socket(Config.GENERATOR_HOST, Config.GENERATOR_PORT);
+		this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-		this.histogram = getRuntimeContext()
-				.getMetricGroup()
-				.histogram("myHistogram", new DropwizardHistogramWrapper(dropwizardHistogram));
+
+		String jobID = getRuntimeContext().getMetricGroup().getAllVariables().get("<job_id>");
+
+		this.writer.write("START "+jobID+"\n");
+		this.writer.write("GET_LAST_ACKNOWLEDGED");
+		this.writer.write("\n");
+		this.writer.flush();
+
+		this.lastAcknowledged = Integer.parseInt(this.reader.readLine());
 	}
 
 	@Override
-	public void invoke(FraudDetectionResult value, Context context) throws Exception {
-		long latency = System.currentTimeMillis() - value.transaction.created;
-		histogram.update(latency);
+	public void invoke(Transaction transaction, Context context) throws Exception {
 
-		if (value.isFraud) {
-			System.out.println("Fraud detected: " + value.transaction);
+		if (Integer.parseInt(transaction.uuid) > this.lastAcknowledged) {
+			this.writer.write("ACKNOWLEDGE " + transaction.uuid + "\n");
+			this.writer.flush();
 		} else {
-			System.out.println("No fraud: " + value.transaction);
+//			 do nothing, we are still catching up
 		}
 	}
 }
