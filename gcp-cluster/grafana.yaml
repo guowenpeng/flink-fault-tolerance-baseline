@@ -28,8 +28,9 @@ spec:
             - containerPort: 3000
               name: ui
           volumeMounts:
-            - mountPath: '/etc/grafana/provisioning/datasources'
+            - mountPath: '/etc/grafana/provisioning/datasources/prometheus.yml'
               name: config-volume
+              subPath: prometheus.yml
             - mountPath: '/etc/grafana/grafana.ini'
               name: config-volume
               subPath: grafana.ini
