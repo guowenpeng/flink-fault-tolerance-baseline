@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: taskmanager
-        image: flink:latest
+        image: gcr.io/flink-master-thesis/flink
         args:
         - taskmanager
         ports:
@@ -22,6 +22,8 @@ spec:
           name: rpc
         - containerPort: 6125
           name: query
+        - containerPort: 9249
+          name: metrics
         env:
         - name: JOB_MANAGER_RPC_ADDRESS
           value: flink-jobmanager

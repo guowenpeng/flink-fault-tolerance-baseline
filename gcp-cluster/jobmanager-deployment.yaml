@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: jobmanager
-        image: flink:latest
+        image: gcr.io/flink-master-thesis/flink
         args:
         - jobmanager
         ports:
@@ -24,6 +24,8 @@ spec:
           name: query
         - containerPort: 8081
           name: ui
+        - containerPort: 9249
+          name: metrics
         env:
         - name: JOB_MANAGER_RPC_ADDRESS
           value: flink-jobmanager

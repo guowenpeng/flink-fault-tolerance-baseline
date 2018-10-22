@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  ports:
+    - name: ui
+      port: 3000
+  selector:
+    app: grafana
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana
+          ports:
+            - containerPort: 3000
+              name: ui
+          volumeMounts:
+            - mountPath: '/etc/grafana/provisioning/datasources'
+              name: config-volume
+            - mountPath: '/etc/grafana/grafana.ini'
+              name: config-volume
+              subPath: grafana.ini
+      volumes:
+        - configMap:
+            name: grafana-config
+          name: config-volume
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+data:
+  prometheus.yml: |
+    apiVersion: 1
+
+    deleteDatasources:
+      - name: Prometheus
+        orgId: 1
+
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://prometheus:9090
+      isDefault: true
+      version: 1
+      editable: false
+  grafana.ini: |
+    [server]
+    domain = localhost:8081
+    root_url = %(protocol)s://%(domain)s/api/v1/proxy/namespaces/default/services/grafana:3000/
+

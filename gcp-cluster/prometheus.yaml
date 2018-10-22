@@ -68,6 +68,7 @@ spec:
           volumeMounts:
           - mountPath: '/etc/prometheus/'
             name: config-volume
+          args: ["--log.level=debug", "--config.file=/etc/prometheus/prometheus.yml"]
       volumes:
       - configMap:
           name: prometheus-config
@@ -86,6 +87,15 @@ data:
     - job_name: 'prometheus'
       static_configs:
       - targets: ['localhost:9090'] # scrape ourselves
-    - job_name: 'kubernetes- pods'
+    - job_name: 'kubernetes-pods'
       kubernetes_sd_configs:
       - role: 'pod'
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: flink  
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        regex: metrics
+        action: keep
+      - action: labelmap 
+        regex: __meta_kubernetes_pod_(.+)
