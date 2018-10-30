@@ -3,7 +3,7 @@ set -e # exit if any command fails
 
 FLINK_DIR=~/dev/flink-1.6.1/bin
 
-mvn clean package -U -Pbuild-jar
+mvn clean package -U
 
 # Cancel all running jobs
 ${FLINK_DIR}/flink list | grep RUNNING | awk '{print $4}' | xargs ${FLINK_DIR}/flink cancel
