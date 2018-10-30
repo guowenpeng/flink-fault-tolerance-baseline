@@ -14,16 +14,25 @@ spec:
       - name: taskmanager
         image: gcr.io/flink-master-thesis/flink
         args:
-        - taskmanager
+          - taskmanager
         ports:
-        - containerPort: 6121
-          name: data
-        - containerPort: 6122
-          name: rpc
-        - containerPort: 6125
-          name: query
-        - containerPort: 9249
-          name: metrics
+          - containerPort: 6121
+            name: data
+          - containerPort: 6122
+            name: rpc
+          - containerPort: 6125
+            name: query
+          - containerPort: 9249
+            name: metrics
         env:
-        - name: JOB_MANAGER_RPC_ADDRESS
-          value: flink-jobmanager
+          - name: JOB_MANAGER_RPC_ADDRESS
+            value: flink-jobmanager
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: ["flink"]
+              topologyKey: kubernetes.io/hostname
