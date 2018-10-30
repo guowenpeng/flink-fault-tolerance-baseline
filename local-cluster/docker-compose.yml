@@ -39,7 +39,7 @@ services:
     links:
       - prometheus
     volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/:/etc/grafana/
 
 
   prometheus:
